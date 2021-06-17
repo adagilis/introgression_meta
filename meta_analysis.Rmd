@@ -1,0 +1,884 @@
+---
+title: "Introgression meta-analysis"
+author: "Andrius J. Dagilis"
+date: "4/25/2021"
+output: html_notebook
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(cowplot)
+theme_set(theme_cowplot())
+library(wesanderson)
+library(lme4)
+library(lmerTest)
+require(reshape2)
+library(ggpubr)
+library(emmeans)
+library(ggrepel)
+library(ggExtra)
+library(ggtree)
+library(rentrez)
+library(stringr)
+library(XML)
+library(MCMCglmm)
+#Get your own ncbi key! https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/
+set_entrez_key("aff3f3a0e8aa4ca59dbd5ee2d64c3d91f409")
+#Function to grab taxon id from entrez.
+
+fetch_taxid = function(x){
+  ret = NA
+  tryCatch({
+    search = entrez_search(db="taxonomy",term = x,)
+    fetch = xmlToDataFrame(entrez_fetch(db="taxonomy",id=search$ids,rettype="xml"))
+    ret=fetch$TaxId 
+  }, error = function(e) {
+    ret = NA
+  })
+  return(ret)
+}
+
+```
+
+# Introduction
+
+
+This document contains all of the scripts used to analyze extracted introgression statistics for our meta-analysis "15 Years of Introgression". The document is organized in two major sections - the first is processing the data-files and preparing the structures that will later be used to perform the analysis, the second are sets of scripts to generate the figures for the paper. Since this is the version of the scripts before peer review, expect the final version to change. If you encounter any bugs or issues, please email adagilis@email.unc.edu.
+
+
+# Data Import and Annotation
+
+We start with some data import to concatenate the data from separate taxa, extracted by different collaborators.
+
+```{r Importing Data, eval=FALSE, include=TRUE}
+
+plants = read.table("introgression_metaanalysis - plants.tsv",sep="\t",fill=TRUE,header=TRUE)
+mammals = read.table("introgression_metaanalysis - Mammals.tsv",sep="\t",fill=TRUE,header=TRUE)
+fish = read.table("introgression_metaanalysis - Fish.tsv",sep="\t",fill=TRUE,header=TRUE)
+birds = read.table("introgression_metaanalysis - Birds.tsv",sep="\t",fill=TRUE,header=TRUE)
+inverts = read.table("introgression_metaanalysis - Inverts(sans insects).tsv",sep="\t",fill=TRUE,header=TRUE)
+insects =read.table("introgression_metaanalysis - Insects.tsv",sep="\t",fill=TRUE,header=TRUE)
+fungi =read.table("introgression_metaanalysis - fungi.tsv",sep="\t",fill=TRUE,header=TRUE)
+
+#Since columns were not identical in prior versions grab used ones manually
+s_plants = plants[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_fish = fish[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_mammals = mammals[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_birds = birds[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_inverts = inverts[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_insects = insects[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_fungi = fungi[,c(1,2,3,6,7,8,9,10,14,15,16)]
+s_inverts[,12] = "Other"
+s_plants[,12] = "Streptophyta"
+s_fish[,12] = "Actinopteri"
+s_mammals[,12] = "Mammalia"
+s_birds[,12]= "Aves"
+s_insects[,12] = "Arthropoda"
+s_fungi[,12] = "Ascomycota"
+
+names(s_plants) = c("P1","P2","P3","metric","value","significance","genome_data_type","reference","reporting.type","human.associated","significance.test","taxon")
+
+names(s_fish)=names(s_plants)
+names(s_mammals) = names(s_plants)
+names(s_birds)=names(s_plants)
+names(s_inverts)=names(s_plants)
+names(s_insects)=names(s_plants)
+names(s_fungi)=names(s_plants)
+
+total = rbind(s_plants,s_fish,s_mammals,s_birds,s_inverts,s_insects,s_fungi)
+rm(s_fish,s_birds,s_mammals,s_inverts,s_plants,s_insects,s_fungi)
+rm(fish,birds,mammals,inverts,plants,insects,fungi)
+total$value = as.numeric(total$value)
+
+total$metric[which(total$metric=="F3")] = "f3"
+total$metric[which(total$metric=="fd")] = "fD"
+#since lots of whitespace in reading in, do this. it takes a while
+total[] = unlist(lapply(total,str_trim))
+total$value=as.numeric(total$value)
+```
+
+
+Once the total data frame is set-up, we begin by filtering it to a specific metric (in this case D, but just replace the *metric* variable to some other D-statistic if desired. Since the values of D are given in a fashion where either P2 or P1 may be introgressing with P3, we standardize so that P2 is always the introgressing population.
+
+```{r De-tripling triplets code, eval=FALSE, include=TRUE}
+
+#Alright, let's take all the data with Patterson's D, and only cases where those values are finite (so any conversion in R was successful)
+subtotal = subset(total, metric=="D" & is.finite(value))
+
+#Need to re-order cases where D is negative
+#For some stats, like f3/f4 this should not be performed
+p1s = subtotal$P1[which(subtotal$value<0)]
+p2s = subtotal$P2[which(subtotal$value<0)]
+subtotal[which(subtotal$value<0),1:2]=data.frame(P1=p2s,P2=p1s)
+subtotal$value = abs(subtotal$value)
+
+#First - some of the Patterson D values are over 1. That shouldn't happen. Mainly in human literature, no idea how, seem to be using standard calculations. Nonetheless, we toss these values out.
+
+subtotal = subtotal[which(subtotal$value <= 1),]
+
+#
+total2 = subtotal[1,]
+total2 = total2[-1,]
+
+#unique triplets
+uniqs = unique(t(apply(subtotal[,1:3],1,sort)))
+#For each find arrangement with minimum D, then only include that arrangement. 
+#This removes cases where the wrong topology is used to infer introgression (e.g. ((P3,P2),P1))
+#Several other approaches could be used here - only keep the minimum value, not all arrangements of that form, or average the D value over the minimum arrangement. Since we attempt to account for repeated measures later statistically, we'll keep all values in the correct order, but I've run other approaches and results are largely congruent.
+for (x in 1:dim(uniqs)[1]) {
+  counter = dim(total2)[1]
+  triplet = uniqs[x,]
+  idx = which(apply(subtotal[,1:3],1,function(y) setequal(y,triplet)))
+  if(length(idx) > 1){
+    correct_order = subtotal[idx[which.min(abs(subtotal[idx,]$value))],1:3]
+    total2 = rbind(total2,subtotal[idx[apply(subtotal[idx,1:3],1,function(y) all(y==correct_order))],])
+  } else if(length(idx)==1){
+    total2 = rbind(total2,subtotal[idx,])
+  } else {
+    print("problem")
+  }
+if(dim(total2)[1]==counter) print("problem")
+}
+
+save(total2,file="Data_only_minD.RData")
+rm(p1s,p2s,uniqs,subtotal,triplet,x,idx,correct_order)
+
+```
+
+
+We now have a data frame with all of the values we'll be using. We next export the list of species in this data-set, annotate those using rentrez, and calculate genetic distances between all species we can. We then annotate our *total2* data-frame with the resulting values.
+
+```{r Subsetting data, eval=FALSE, include=TRUE}
+
+species = c(total2$P1,total2$P2,total2$P3)
+species = unique(sapply(species,function(x) sub("[_(].*","",x)))
+
+
+#First we'll utilize some ncbi tools to do automated annotation of some basic phylogenetic points.
+#We first will make a data frame containing all of the species and potential information about them.
+#Getting annotations from ncbi takes a while, so only run this once, and re-load the resulting data tables.
+
+species_table = data.frame(species = unique(species))
+
+
+
+#Run once
+species_table$taxid = sapply(species_table$species,function(x) fetch_taxid(x))
+#Run again for failed cases (in case of time-outs, etc.)
+species_table$taxid[which(is.na(species_table$taxid))] = sapply(which(is.na(species_table$taxid)),function(x) fetch_taxid(sub("var.*","",species_table$species[x])))
+#And a third time just to make sure
+species_table$taxid[which(is.na(species_table$taxid))] = sapply(which(is.na(species_table$taxid)),function(x) fetch_taxid(sub("spp.*","",species_table$species[x])))
+
+
+
+#I take the resulting taxids and annotate/fix-up entries manually at this point.
+# skip the write step and read in provided file if you don't want to.
+write.table(species_table,file="species_list.tsv",sep="\t",quote=FALSE,row.names=FALSE)
+species_table = read.table("species_list_corrected.tsv",sep="\t",header=TRUE)
+
+#quick function to grab taxonomy info for any taxid
+fetch_lineage = function(x) {
+  ret = NA
+  if(x!="-"){
+    tryCatch({
+      term = paste(x,"[TaxID]",sep="")
+      search = entrez_search(db="taxonomy",term = term)
+      fetch = xmlToDataFrame(entrez_fetch(db="taxonomy",id=search$ids,rettype="xml"))
+      ret=fetch$LineageEx 
+    }, error = function(e) {
+      ret = NA
+    })    
+  }
+  return(ret)
+}
+
+species_table$taxid[which(is.na(species_table$taxid))] = "-"
+
+species_table$LineageEx = NA
+species_table$LineageEx = sapply(species_table$taxid,function(x) fetch_lineage(x))
+species_table$LineageEx[which(is.na(species_table$LineageEx))] = sapply(which(is.na(species_table$LineageEx)),function(x) fetch_lineage(sub("var.*","",species_table$species[x])))
+species_table$LineageEx[which(is.na(species_table$LineageEx))] = sapply(which(is.na(species_table$LineageEx)),function(x) fetch_lineage(sub("spp.*","",species_table$species[x])))
+
+total2$t1 =species_table$taxid[match(sapply(total2$P1,function(x) sub("[_(].*","",x)),species_table$species)]
+total2$t2 = species_table$taxid[match(sapply(total2$P2,function(x) sub("[_(].*","",x)),species_table$species)]
+total2$t3 = species_table$taxid[match(sapply(total2$P3,function(x) sub("[_(].*","",x)),species_table$species)]
+
+#Then we parse the results. In particular, we'll want to annotate the family/order/subphylum/phylum for each species. Only a few cases of interfamily introgression in here, nothing on a higher level, so taking species 1 phylum is enough to know the triplets phylum
+
+grabEntry=function(x,pattern,exclude){
+  subs = strsplit(x,split="[0-9.*]")
+  subs = unlist(subs)[nzchar(unlist(subs))]
+  ret = subs[grep(pattern,subs)]
+  rms = grep(exclude,ret)
+  if(length(rms)>0) ret = ret[-rms]
+  ret = unlist(sub(pattern,"",ret))[1]
+  if(length(ret)==0) ret = "NA"
+  return(ret)
+}
+
+species_table$family = vapply(species_table$LineageEx,function(x) grabEntry(x,"family","sub|super|infra"),character(1))
+species_table$class = vapply(species_table$LineageEx,function(x) grabEntry(x,"class","sub|super|infra"),character(1))
+species_table$order = vapply(species_table$LineageEx,function(x) grabEntry(x,"order","sub|super|infra|parv"),character(1))
+species_table$phylum = vapply(species_table$LineageEx,function(x) grabEntry(x,"phylum","sub|super|infra"),character(1))
+species_table$subphylum = vapply(species_table$LineageEx,function(x)
+grabEntry(x,"subphylum","super"),character(1))
+species_table$kingdom = vapply(species_table$LineageEx,function(x)
+grabEntry(x,"kingdom","super"),character(1))
+
+#save(species_table,file="species_table_filled.RData")
+
+#Then we can annotate each entry in the data with these data
+#find ids of species 1 and 2
+idx1 = match(total2$t2,species_table$taxid)
+idx2 = match(total2$t3,species_table$taxid)
+#and then annotate.
+total2$order = as.character(species_table$order[idx1])
+total2$order[which(total2$order=="character(0)")] = NA
+
+total2$class = as.character(species_table$class[idx1])
+total2$class[which(total2$class=="character(0)")] = NA
+
+total2$phylum = as.character(species_table$phylum[idx1])
+total2$phylum[which(total2$phylum=="character(0)")] = NA
+
+total2$subphylum = as.character(species_table$subphylum[idx1])
+total2$subphylum[which(total2$subphylum=="character(0)")] = NA
+
+total2$family = as.character(species_table$family[idx1])
+total2$family[which(total2$family=="character(0)")] = NA
+
+total2$family2 = as.character(species_table$family[idx2])
+total2$family2[which(total2$family2=="character(0)")] = NA
+
+total2$kingdom = as.character(species_table$kingdom[idx1])
+total2$kingdom[which(total2$kingdom=="character(0)")] = NA
+
+rm(idx1,idx2)
+#Lastly, make a unique "pair-code" that lets us identify the species pair introgressing for later analyses
+pairs_code = apply(data.frame(x=total2$t2,y=total2$t3),1,function(x) paste(sort(x)[1],sort(x)[2],sep="-"))
+total2$pair = pairs_code
+rm(pairs_code)
+
+#Backup all the progress up to this point to not need to re-run everything up to here.
+save.image(file="Introgression_metaanalysis_workspace.RData")
+```
+
+now get genetic distances for all unique pairs in the data (done in an outside script) and annotate those as well.
+
+```{r Genetic Distances, include=TRUE,eval=FALSE}
+load(file="Introgression_metaanalysis_workspace.RData")
+#Now we reduce to the data we can actually acquire distances for - we need the two taxa with introgression to have taxon ids
+
+pairs = unique(total2$pair)
+
+write.table(file="forDistances.tsv",pairs,quote=FALSE,col.names = FALSE,row.names=FALSE,sep="\t")
+
+#the resulting file is taken through custom pipeline to generate the distances/ folder
+#In brief, up to 10k sequences of each taxon id are downloaded, and for all introgressing pairs average Jukes Cantor of reciprocal best blast hits is calculated. This is done with scripts custom to our UNC cluster, but if you need guidance on how to do it, email adagilis@email.unc.edu
+
+#For preprint version, we've included the distances in an archive.
+
+#once done, annotate distances
+
+total2$JC = NA
+total2$raw = NA
+total2$BH = NA
+total2$n_genes = NA
+total2$aveD = NA
+
+found_dists = list.files(path = "distances/",pattern="*.dists.txt")
+missing = pairs[which(!(pairs %in% gsub("_","-",gsub(".dists.txt","",found_dists))))]
+missing = gsub("-","\t",missing)
+#948 of the 1103 distance pairs found, save the rest for re-processing (some or within-species, some are missing tid's, some have no sequences on ncbi)
+write.table(file="forDistances_remaining.tsv",missing,quote=FALSE,col.names=FALSE,row.names=FALSE,sep="\t")
+#After re-doing this step, re-run from line 270 and then to actual annotation
+
+for(i in found_dists){
+  t1 = as.integer(sub("_.*","",i))
+  t2 = as.integer(sub(".dists.txt","",sub(".*_","",i)))
+  if(t1 != t2){
+    dists = read.table(paste("distances/",i,sep=""))
+    idx1 = intersect(which(total2$t3==t2),
+                   union(intersect(which(total2$value<0),which(total2$t1==t1)),
+                   intersect(which(total2$value>=0),which(total2$t2==t1))))
+    if(length(idx1>0)){
+      total2[idx1,]$JC = dists[1,]
+      total2[idx1,]$raw = dists[2,]
+      total2[idx1,]$BH = dists[3,]
+      total2[idx1,]$n_genes = dists[4,]
+      total2[idx1,]$aveD = mean(total2[idx1,]$value,na.rm=TRUE) 
+    }
+  }
+}
+
+
+rm(dists,i,idx1,t1,t2,found_dists,pairs,missing)
+
+```
+
+New discovery - datelife lets us get a relatively complete tree for our samples. Can calculate phylogenetic distances off of this (although I still need to dive into the package to parse what the exact ages reported are).
+
+### Significance thresholds
+
+We have several different potential significance thresholds, so here we standardize them to a single one.
+
+
+```{r Significance thresholding}
+total2$sig = FALSE
+total2$sig[which(total2$significance=="Y")] = TRUE
+total2$sig[which(total2$significance=="y")] = TRUE
+
+#fix different formats
+total2$significance = gsub(",",".",total2$significance)
+
+#New format, easier
+idx = which(total2$significance.test=="P")
+total2$sig[idx][which(as.numeric(total2$significance[idx])<0.05)]= TRUE
+idx = which(total2$significance.test=="Z")
+total2$sig[idx][which(abs(as.numeric(total2$significance[idx]))>3)]= TRUE
+
+
+#old annotation format - p-values
+idx_p = grep("[p,P]",total2$significance)
+total2$significance.test[idx_p]="P"
+processed = gsub("[p,P];","",total2$significance[idx_p])
+total2$sig[idx_p][which(as.numeric(processed)<0.05)] = TRUE
+idx2 = grep("<",processed)
+total2$sig[idx_p[idx2]]=TRUE
+
+#Z-values
+idx_z = grep("Z",total2$significance)
+total2$significance.test[idx_z]="Z"
+processed = gsub("[z,Z];","",total2$significance[idx_z])
+total2$sig[idx_z][which(abs(as.numeric(processed))>3)]=TRUE
+
+#Both...
+idx = intersect(idx_p,idx_z)
+processed = gsub(".*p;","",total2$significance[idx])
+total2$sig[idx][which(as.numeric(processed)<0.05)]=TRUE
+total2$significance.test[idx] = "both"
+
+
+#Other old format
+idx_z = grep("\\(Z\\)",total2$significance)
+processed = gsub("\\(Z\\) ","",total2$significance[idx_z])
+total2$sig[idx_z][which(abs(as.numeric(processed))>3)]=TRUE
+
+idx_p = grep("\\(P\\)",total2$significance)
+processed = gsub("\\(P\\) ","",total2$significance[idx_p])
+total2$sig[idx_p][which(as.numeric(processed)<0.05)] = TRUE
+
+rm(idx,idx_p,idx_z,processed)
+
+save.image("Introgression_metaanalysis_workspace.RData")
+```
+
+
+
+### Pulling plant database data
+
+```{r Plant annotate}
+#Tree of Sex data, relatively simple processing. database of plant traits acquired from treeofsex.org
+
+#This is the least efficient way of doing this, hammers NCBIs servers to get taxon id matches.
+d1 = read.table("TOS_plants.csv",sep=",",header=TRUE)
+d1$species = paste(d1$Genus,d1$Species)
+
+d1$taxid = sapply(d1$species,function(x) fetch_taxid(x))
+
+#now get a list of selfing status
+idx1 = match(species_table$taxid,d1$taxid)
+
+species_table$selfing = NA
+species_table$selfing = sapply(1:length(idx1),function(x) unique(d1$Selfing..self.incompatible.self.compatible.[idx1[x]]))
+
+
+#And annotate the data
+idx1 = match(total2$t1,species_table$taxid,nomatch=NA)
+idx2 = match(total2$t2,species_table$taxid,nomatch=NA)
+idx3 = match(total2$t3,species_table$taxid,nomatch=NA)
+
+total2$selfing1 = as.character(species_table$selfing[idx1])
+total2$selfing2 = as.character(species_table$selfing[idx2])
+total2$selfing3 = as.character(species_table$selfing[idx3])
+
+total2$selfing_combo = sapply(1:length(total2$P1),function(i){
+ x=total2[i,]
+ if(!is.na(x$selfing2) & !is.na(x$selfing3)){
+  if(x$selfing3 == x$selfing2 & x$selfing3 == "self compatible") {
+     return("both comp")
+  } else if(x$selfing2 == "self compatible" & x$selfing3 =="self compatible|self incompatible"){
+     return("comp - poly")
+  } else if(x$selfing3 == "self compatible" & x$selfing2 =="self compatible|self incompatible"){
+     return("comp - poly")
+  } else if(x$selfing2 == "self compatible" & x$selfing3 =="self incompatible"){
+     return("comp - inc")
+   } else if(x$selfing3 == "self compatible" & x$selfing2 =="self incompatible"){
+    return("comp - inc")
+   } else if(x$selfing2 == x$selfing3 & x$selfing2 == "self compatible|self incompatible"){
+     return("both poly")
+   } else if(x$selfing2 == "self compatible|self incompatible" & x$selfing3 =="self incompatible"){
+     return("poly - inc")
+   } else if(x$selfing3 == "self compatible|self incompatible" & x$selfing2 =="self incompatible"){
+     return("poly - inc")
+  } else if(x$selfing2 == x$selfing3 & x$selfing2 == "self incompatible"){
+     return("both inc")
+   } else {return(NA)}   
+ } else {
+   return(NA)
+ }
+})
+
+#Annual/perennial
+
+idx1 = match(species_table$taxid,d1$taxid)
+
+species_table$annual = NA
+species_table$annual = sapply(1:length(idx1),function(x) unique(d1$Life.Form..annual.perennial.[idx1[x]]))
+#Nearly all perennial... and some mixed, cool
+species_table$sexual = NA
+species_table$sexual = sapply(1:length(idx1),function(x) unique(d1$Sexual.system[idx1[x]]))
+#Some differences here, annotate
+idx1 = match(total2$t2,species_table$taxid,nomatch=NA)
+idx2 = match(total2$t3,species_table$taxid,nomatch=NA)
+
+total2$sex = as.character(species_table$sexual[idx1])
+total2$sex2 = as.character(species_table$sexual[idx2])
+#All but one pair have same system, analyze later just based on one.
+idx1 = match(species_table$taxid,d1$taxid)
+species_table$karyotype = NA
+species_table$karyotype = sapply(1:length(idx1),function(x) unique(d1$sporophytic.chromosome.number..mean.[idx1[x]]))
+#7 levels (oddly few)
+species_table$growth = NA
+species_table$growth = sapply(1:length(idx1),function(x) unique(d1$Growth.Form..herb.shrub.tree.herbaceous.vine.liana.woody.vine.[idx1[x]]))
+
+
+save.image(file="Introgression_metaanalysis_workspace.RData")
+
+```
+
+
+### Other minor formatting
+
+There's some inconsistencies/issues with the formatting of some entries, we toss out problem entries here
+
+```{r More standardization}
+
+#Human association
+#remove trailing white-space
+total2$human.associated = str_trim(total2$human.associated)
+total2$human.associated[which(!(total2$human.associated %in% c("yes","no")))] = NA 
+
+#Data type
+total2$genome_data_type[which(total2$genome_data_type %in% c("Whole Genome","Whole Genomes"))] = "WGS"
+total2$genome_data_type[which(total2$genome_data_type %in% c("GBS","GBS (ddRAD)"))] = "RAD"
+total2$genome_data_type[which(total2$genome_data_type %in% c("exome","Exome capture","Transcriptomes","transcriptome","sequence capture","mix of GBS + transcriptomes","Transcriptome"))] = "Transcriptome/Exome"
+
+#Sampling/reporting scheme
+total2$m.outgroups = FALSE
+#remove trailing white-space
+total2$reporting.type = str_trim(total2$reporting.type)
+total2$reporting.type[which(total2$reporting.type %in% c("specific configuration","only specific configurations"))] = "specific configurations"
+total2$reporting.type[which(total2$reporting.type=="multiple configurationa and multiple outgroup")] = "multiple configurations and multiple outgroups"
+total2$m.outgroups[grep("multiple outgroups",total2$reporting.type)] = TRUE
+total2$reporting.type[grep("multiple outgroups",total2$reporting.type)] = gsub(" and multiple outgroups","",total2$reporting.type[grep("multiple outgroups",total2$reporting.type)])
+
+save.image("Introgression_metaanalysis_workspace.RData")
+
+```
+
+
+### Paper statistics
+
+
+The last set of data to import and parse is the list of papers. This is much more straightforward, we'll be plotting the data more or less directly from the sheet.
+
+```{r Paper list/parse, include=TRUE, error=FALSE}
+load("Introgression_metaanalysis_workspace.RData")
+
+library(readr)
+
+subpapers =  read_delim("SupFile1_PaperList.tsv", "\t", escape_double = FALSE, trim_ws = TRUE)
+
+subpapers$`Evidence?`=sapply(subpapers$`Evidence?`,tolower)
+subpapers$`Evidence?` = sapply(subpapers$`Evidence?`,function(x) strsplit(x,","))
+paper_sum = data.frame(year=2005:2021)
+paper_sum$number_papers = sapply(paper_sum$year,function(x) length(which(subpapers$`Print Year`==x)))
+
+#The below are processed files of the terms used across the dataset.
+evidence_terms <- read_delim("evidence_terms.tsv","\t", escape_double = FALSE, trim_ws = TRUE)
+
+find_terms = function(t){
+  terms = unique(subset(evidence_terms,category==t)$term)
+  idx=unlist(lapply(subpapers$`Evidence?`,function(x) any(which(terms %in% unlist(lapply(x,str_trim)) ))))
+  return(sapply(2005:2021,function(x) length(which(subpapers$`Print Year`[idx] == x))))
+}
+
+paper_sum$structure = find_terms("clustering")
+paper_sum$clines = find_terms("clines")
+paper_sum$fstats = find_terms("fstats")
+paper_sum$similarity = find_terms("similarity")
+paper_sum$trees = find_terms("trees")
+paper_sum$demography = find_terms("demography")
+
+
+
+
+tmp = strsplit(subpapers$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,split=",")
+data_type=data.frame(Year = rep(subpapers$`Print Year`,sapply(tmp,length)),data=unlist(tmp))
+data_type$count = gsub("\\)","",gsub(".*\\(","",data_type$data))
+data_type$data = gsub("\\(.*","",data_type$data)
+
+#write.table(table(data_type$data),file="data_types.tsv",sep="\t",quote=FALSE,col.names = FALSE,row.names = FALSE)
+
+data_terms = read.table("data_types.tsv",sep="\t",header=TRUE)
+find_data = function(t){
+  terms = unique(subset(data_terms,category==t)$term)
+  idx=which(sapply(data_type$data,function(x) str_trim(x) %in% str_trim(terms)))
+  return(sapply(2005:2021,function(x) length(which(data_type$Year[idx] == x))))
+}
+
+paper_sum$MLST=find_data("single locus")
+paper_sum$microsattelites = find_data("microsattelites")
+paper_sum$FLP = find_data("FLP")
+paper_sum$microarray = find_data("microarray")
+paper_sum$RRS = find_data("GBS/RAD")+find_data("transcriptome")
+paper_sum$WGS = find_data("WGS")
+
+
+paper_sum[,3:14]=paper_sum[,3:14]/paper_sum[,2]
+
+in_terms = function(x,t,terms){
+  terms = unique(str_trim(subset(terms,category==t)$term))
+  in_data = str_trim(unlist(str_split(x,",")))
+  return(length(which(in_data %in% terms))>0)
+}
+
+#To get co-occurence need to mark each paper separately
+papers2 = papers[,c(4,5,6,7,8,13,14,15)]
+papers2 = subset(papers2,`Claim introgression happening?`)
+#6 Sequencing categories
+papers2$MLST = as.integer(sapply(papers2$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,function(x) in_terms(x,"single locus",data_terms)))
+papers2$microsattelites = as.integer(sapply(papers2$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,function(x) in_terms(x,"microsattelites",data_terms)))
+papers2$FLP = as.integer(sapply(papers2$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,function(x) in_terms(x,"FLP",data_terms)))
+papers2$microarray = as.integer(sapply(papers2$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,function(x) in_terms(x,"microarray",data_terms)))
+papers2$RRS = as.integer(sapply(papers2$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,function(x) in_terms(x,"GBS/RAD",data_terms)))
+papers2$WGS = as.integer(sapply(papers2$`Data type (amplicon, microsat, sanger, WGS, RAD, transcriptome, exome)`,function(x) in_terms(x,"WGS",data_terms)))
+
+seq_cov = cov(as.matrix(papers2[,9:14]))
+
+#6 Evidence categories
+
+papers2$similarity = as.integer(sapply(papers2$`Evidence?`,function(x) in_terms(x,"similarity",evidence_terms)))
+papers2$clines = as.integer(sapply(papers2$`Evidence?`,function(x) in_terms(x,"clines",evidence_terms)))
+papers2$demography = as.integer(sapply(papers2$`Evidence?`,function(x) in_terms(x,"demography",evidence_terms)))
+papers2$fstats = as.integer(sapply(papers2$`Evidence?`,function(x) in_terms(x,"fstats",evidence_terms)))
+papers2$clustering = as.integer(sapply(papers2$`Evidence?`,function(x) in_terms(x,"clustering",evidence_terms)))
+papers2$trees = as.integer(sapply(papers2$`Evidence?`,function(x) in_terms(x,"trees",evidence_terms)))
+
+evi_cov = cov(as.matrix(papers2[,15:20]))
+
+library(Hmisc)
+methods_cor = rcorr(as.matrix(papers2[,9:20]))
+
+pvals = melt(methods_cor$r)
+names(pvals) = c("V1","V2","corr")
+pvals$p = melt(methods_cor$P)$value
+pvals$p.corr = pvals$p*(12*11/2)
+pvals$sig = pvals$p.corr<0.05
+
+ggplot(pvals,aes(x=V1,y=V2,fill=corr))+geom_tile()+geom_text(data=subset(pvals,sig),aes(x=V1,y=V2),label="*")+scale_fill_gradient2(low="blue",mid="white",high="red",midpoint=0)+labs(x="",y="",fill="Correlation")+theme(axis.text.x = element_text(angle=90))
+
+
+```
+
+Below we fit and test the 30 models comparing taxonomic effects, and the two for different life history traits.
+
+```{r Phylum/Class diffs, include=TRUE}
+#Subset data
+subtotal = subset(total2,sig | value<0.05)
+
+#Models with taxa, no genetic distance, reference as random effect
+model1 = lmer(value~kingdom+(1|pair)+(1|reference),data=subtotal)
+model2 = lmer(value~kingdom/phylum+(1|pair)+(1|reference),data=subtotal)
+model3 = lmer(value~kingdom/phylum/class+(1|pair)+(1|reference),data=subtotal)
+
+#Less conservative, use data type and reporting as random effects
+model4 = lmer(value~kingdom+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+model5 = lmer(value~kingdom/phylum+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+model6 = lmer(value~kingdom/phylum/class+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+
+anova(model1,model2,model3)
+anova(model4,model5,model6)
+
+#genetic distances
+model7 = lmer(value~JC+kingdom+(1|pair)+(1|reference),data=subtotal)
+model9 = lmer(value~JC+kingdom/phylum+(1|pair)+(1|reference),data=subtotal)
+model11 = lmer(value~JC+kingdom/phylum/class+(1|pair)+(1|reference),data=subtotal)
+
+model8 = lmer(value~JC*kingdom+(1|pair)+(1|reference),data=subtotal)
+model10 = lmer(value~JC*kingdom/phylum+(1|pair)+(1|reference),data=subtotal)
+model12 = lmer(value~JC*kingdom/phylum/class+(1|pair)+(1|reference),data=subtotal)
+
+anova(model7,model8,model9,model10,model11,model12)
+
+
+model13 = lmer(value~JC+kingdom+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+model15 = lmer(value~JC+kingdom/phylum+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+model17 = lmer(value~JC+kingdom/phylum/class+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+
+model14 = lmer(value~JC*kingdom+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+model16 = lmer(value~JC*kingdom/phylum+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+model18 = lmer(value~JC*kingdom/phylum/class+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+
+anova(model13,model14,model15,model16,model17,model18)
+
+#filter to only classes with more than 2 papers
+class_table = table(subtotal[match(unique(subtotal$reference),subtotal$reference),]$class)
+class_filter = names(which(class_table>2))
+subtotal3 = subset(subtotal,class %in% class_filter)
+
+model19 = lmer(value~JC+kingdom+(1|pair)+(1|reference),data=subtotal3)
+model21 = lmer(value~JC+kingdom/phylum+(1|pair)+(1|reference),data=subtotal3)
+model23 = lmer(value~JC+kingdom/phylum/class+(1|pair)+(1|reference),data=subtotal3)
+
+model20 = lmer(value~JC*kingdom+(1|pair)+(1|reference),data=subtotal3)
+model22 = lmer(value~JC*kingdom/phylum+(1|pair)+(1|reference),data=subtotal3)
+model24 = lmer(value~JC*kingdom/phylum/class+(1|pair)+(1|reference),data=subtotal3)
+
+anova(model19,model20,model21,model22,model23,model24)
+
+model25 = lmer(value~JC+kingdom+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal3)
+model27 = lmer(value~JC+kingdom/phylum+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal3)
+model29 = lmer(value~JC+kingdom/phylum/class+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal3)
+
+model26 = lmer(value~JC*kingdom+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal3)
+model28 = lmer(value~JC*kingdom/phylum+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal3)
+model30 = lmer(value~JC*kingdom/phylum/class+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal3)
+
+anova(model25,model26,model27,model28,model29,model30)
+
+#Plant life history
+
+subtotal4 = subset(subtotal,class="Magnoliopsida")
+
+model31 = lmer(value~selfing_combo+sex+(1|pair)+(1|reference),data=subtotal4)
+anova(model31)
+contrast(emmeans(model31,~sex))
+emmeans(model31,list(pairwise~sex),adjust="tukey")
+
+
+model32 = lmer(value~human.associated+(1|pair)+(1|reporting.type)+(1|genome_data_type),data=subtotal)
+anova(model32)
+contrast(emmeans(model32,~human.associated))
+emmeans(model32,list(pairwise~human.associated),adjust="tukey")
+```
+
+Next we plot paper frequency across the eukaryotic time tree.
+
+```{r trees}
+#Tree file obtained from timetree.org, all eukaryotic orders
+all_orders = read.tree("eukaryotes_order.nwk")
+subpapers = subset(papers,`Claim introgression happening?`==TRUE)
+order_table = data.frame(names=all_orders$tip.label)
+order_table$studies = sapply(order_table$names,function(x) length(which(subpapers$Order==x)))
+
+orders_occured = unique(str_trim(subpapers$Order))
+idx = which(orders_occured %in% all_orders$tip.label)
+find_ids_manually = orders_occured[-idx]
+#write.table(find_ids_manually,file="mismatch_orders.tsv",sep="\t",quote=FALSE,row.names = FALSE,col.names = FALSE)
+relabels = read.table("mismatch_orders.tsv",header=TRUE,sep="\t")
+
+
+
+idx1 = match(subpapers$Order,relabels$old_name)
+relabels$count = table(idx1)
+relabels = relabels[-which(is.na(relabels$in_tree)),]
+idx2 = match(relabels$in_tree,order_table$names)
+
+order_table$studies[idx2] = c(relabels$count)
+
+
+subpapers2 = subset(subpapers,`Print Year`< 2015)
+order_table$studies_2015 = sapply(order_table$names,function(x) length(which(subpapers2$Order==x)))
+relabels$count_2015 = sapply(relabels$old_name,function(x) length(which(subpapers2$Order==x)))
+idx2 = match(relabels$in_tree,order_table$names)
+order_table$studies_2015[idx2] = relabels$count_2015
+
+subpapers3 = subset(subpapers,`Print Year`< 2010)
+order_table$studies_2010 = sapply(order_table$names,function(x) length(which(subpapers3$Order==x)))
+relabels$count_2010 = sapply(relabels$old_name,function(x) length(which(subpapers3$Order==x)))
+idx2 = match(relabels$in_tree,order_table$names)
+order_table$studies_2010[idx2] = relabels$count_2010
+
+
+order_table$studies = order_table$studies-order_table$studies_2015
+order_table$studies_2015 = order_table$studies_2015-order_table$studies_2010
+
+tree_fig=ggtree(all_orders,layout = "fan") %<+% subset(order_table,studies>0) + geom_tippoint(size=2,aes(color=studies,alpha=studies),na.rm=TRUE)+
+  scale_color_stepsn(trans="log10",colors=wes_palette("Zissou1",4,type="continuous"),breaks=c(1,2,5,10,20,40))+scale_alpha_binned(breaks=c(1),range=c(0.8,0.95),na.value=0)
+
+
+tree = ggtree(all_orders,layout="circular",size=0.05)
+testdf = as.data.frame(cut(order_table$studies_2010,breaks=c(0,1,2,4,10,20,40,51)))
+
+rownames(testdf) = order_table$names
+colnames(testdf) = "studies_2010"
+testdf$studies_2010=factor(testdf$studies_2010,levels=c("(0,1]","(1,2]","(2,4]","(4,10]","(10,20]","(20,40]","(40,51]"))
+testdf$studies_2015 = cut(order_table$studies_2015,breaks=c(0,1,2,4,10,20,40,51))
+testdf$studies_2020 = cut(order_table$studies,breaks=c(0,1,2,4,10,20,40,51))
+
+cols_tree = wes_palette("Zissou1",7,type="continuous")
+manual_scale = scale_fill_manual(values=c("(0,1]"=cols_tree[1],"(1,2]"=cols_tree[2],"(2,4]"=cols_tree[3],"(4,10]"=cols_tree[4],"(10,20]"=cols_tree[5],"(20,40]"=cols_tree[6],"(40,51]"=cols_tree[7]))
+gheatmap(tree,testdf,width=0.2,color=NULL,colnames=TRUE,colnames_angle = 60)+manual_scale+labs(fill="Number of Studies")
+
+```
+
+# Figure 1
+
+```{r Figure 1}
+
+paper_melt_e = melt(paper_sum[,c(1,3:8)],id.vars ="year")
+paper_melt_e$variable = factor(paper_melt_e$variable,levels=c("similarity","trees","structure","clines","demography","fstats"))
+
+paper_melt_d = melt(paper_sum[,c(1,9:14)],id.vars ="year")
+paper_melt_d$variable = factor(paper_melt_d$variable,levels=c("MLST","microsattelites","FLP","microarray","RRS","WGS"))
+
+
+subpapers$Taxon[which(subpapers$Taxon %in% c("Bacteria","Cnidaria","Crustacean","Metamonada","Molluscs","Nematode","Platyhelminthes","Tunicate"))] = "Other"
+
+fig1A = ggplot(subpapers,aes(x=`Print Year`,fill=Taxon))+geom_bar()+labs(x="",y="Number of Papers")+f_scale1
+
+l1 = get_legend(fig1A)
+
+fig1A = fig1A+theme(legend.position = "none")
+
+fig1B = ggplot(paper_melt_e,aes(x=year,y=variable,height=value,fill=variable,group=variable))+geom_ridgeline()+labs(x="Print Year",y="Proportion of papers",fill="Evidence type")+scale_fill_manual(values=wes_palette("Zissou1",type="continuous",6))+
+  scale_color_manual(values=wes_palette("Zissou1",type="continuous",6))
+
+fig1B = fig1B+theme(legend.position = "none")
+#fig1B+facet_grid(variable~.)
+l2 = get_legend(fig1B)
+fig1B = fig1B+theme(legend.position = "none")
+
+
+fig1C = ggplot(paper_melt_d,aes(x=year,y=variable,height=value,fill=variable))+geom_ridgeline()+labs(x="Print Year",y="",fill="Data type")+scale_fill_manual(values=wes_palette("Moonrise3",type="continuous",6))+
+  scale_color_manual(values=wes_palette("Royal2",type="continuous",6))+
+  scale_y_discrete(position="right")
+fig1C = fig1C+theme(legend.position = "none")
+
+
+paper_row = plot_grid(fig1B,fig1C,rel_widths=c(1,1),axis="b")
+fig1 = plot_grid(fig1A,paper_row,nrow=2)
+
+
+save_plot("Fig1.pdf",fig1,base_height = 5.875,base_width = 8.525)
+fig1
+```
+
+
+# Figure 2
+
+
+```{r Figure 2}
+#First subset to taxa we can look at more easily (have enough data to display meaningfully). Options for both classes and phyla
+subtotal2 = subset(total2,sig)
+subtotal2$phylum[which(subtotal2$phylum %in% c("Cnidaria","Mollusca","Platyhelminthes","NA"))] = "Other"
+subtotal2 = subset(subtotal2,!is.na(phylum))
+subtotal2 = subset(subtotal2,!is.na(class))
+subtotal2$class[which(subtotal2$phylum == "Other")] = "Other"
+subtotal2 = subset(subtotal2,phylum!="Other")
+
+
+#Re-order the factors in a vaguely informative way
+subtotal2$phylum = factor(subtotal2$phylum,levels=c("Ascomycota","Arthropoda","Chordata","Streptophyta","Other"))
+subtotal2$class= factor(subtotal2$class,levels=c("Eurotiomycetes","Sordariomycetes","Insecta","Other","Actinopteri","Aves","Mammalia","Magnoliopsida","Pinopsida","Polypodiopsida"))
+
+fig2A = ggplot(subtotal2,aes(x=phylum:class,y=value,fill=class))+
+  geom_jitter(height=0,size=0.5,alpha=0.25)+
+  geom_violin(alpha=0.9)+f_scale_class+
+  theme()
+  labs(x=NA,y="Patterson's D",fill="Class")
+
+legend= get_legend(fig2A)
+
+#From prior model fitting we have a slope for -log(JC) vs Patterson's D (model_log_dist object), so we use that here:
+# Intercept: 1.117e-01
+# Slope:  -1.225e-02
+
+fig2B = ggplot(subtotal2,aes(x=log(JC),y=value))+
+  geom_point(aes(col=class),size=0.65)+
+  c_scale_class+
+  labs(x="log(Jukes Cantor)",y="Patterson's D",col="Phylum")+
+  geom_abline(slope=-1.788e-02,intercept=0.11,size=1)+
+  geom_smooth(method="lm",fill=NA,size=1,linetype=2,col="black")
+
+
+col1 = plot_grid(fig2A+theme(legend.position="none"),fig2B,labels="AUTO",nrow=2,rel_heights = c(1,1))
+
+fig2 = plot_grid(col1,legend,nrow=1,rel_widths = c(1.5,0.5))
+fig2
+
+
+fig2C = ggplot(subtotal2,aes(x=phylodists,y=value))+
+  geom_jitter(height=0,width=0.1,aes(col=phylum),size=1)+
+  c_scale_phylum+
+  labs(x="Divergence (MYA)",y="Patterson's D",col="Phylum")+
+  #geom_abline(slope=-1.225e-02,intercept=1.117e-01,size=1)+
+  geom_smooth(method="glm",fill=NA,size=1,linetype=2,col="black")
+
+plot_grid(ggMarginal(fig2C+theme(legend.position="none"),type="violin",groupFill=TRUE),
+          get_legend(fig2C),nrow=1,rel_widths = c(1,0.5))
+```
+
+# Figure 3
+
+```{r orderPlot}
+subtotal2 = total2[union(which(total2$sig),which(total2$value<0.05)),]
+subtotal2 = subset(subtotal2,JC>0)
+subtotal2 = subset(subtotal2,!is.na(order))
+
+getSlopeAndNumber = function(x){
+  subset1 = subset(subtotal2,order==x)
+  pairs = length(unique(subset1$pair))
+  phylum = subset1$phylum[1]
+  papers = length(unique(subset1$reference))
+  class = subset1$class[1]
+  slope_s = 0+summary(full_model)$coefficients[grep(x,rownames(summary(full_model)$coefficients))[2],1]
+  slope = slope1 + slope_s
+  sig = summary(full_model)$coefficients[grep(x,rownames(summary(full_model)$coefficients))[2],5]
+  return(data.frame(slope=unlist(slope),sig=unlist(sig),n=dim(subset1)[1],phylum=unlist(phylum),class=unlist(class),order=unlist(x),papers=unlist(papers),pairs=unlist(pairs)))
+}
+
+orders = unique(subtotal2$order)
+
+order_table = as.data.frame(t(sapply(orders,function(x) getSlopeAndNumber(x))))
+order_table$sigBin = FALSE
+order_table$sigBin[which(order_table$sig<0.05)]=TRUE
+
+order_table$sigBin = FALSE
+order_table$sigBin[which(order_table$sig<0.05)]=TRUE
+order_plot = ggplot(order_table,aes(x=unlist(n),y=unlist(slope)))+geom_point(aes(col=unlist(class)))+
+  geom_hline(yintercept=0,linetype="dashed",size=0.5)+
+  geom_label_repel(data = subset(order_table,!sigBin),aes(label=unlist(order),col=unlist(class)),box.padding = 0.35,point.padding = 0.5)+
+   geom_label_repel(data = subset(order_table,sigBin),aes(label=unlist(order),fill=unlist(class)),box.padding = 0.35,point.padding = 0.5)+
+  scale_x_continuous(trans="log10")+
+  labs(x="Number of comparisons in taxon",y="Slope of JC by D",col="Class (non significant)",fill="Class (significant)")+
+  c_scale_class+
+  f_scale_class+
+  scale_y_continuous(trans="pseudo_log",breaks=c(-40,-20,-10,-1,-0.1,0.1,1,10,20,40))
+
+
+order_plot
+
+row1= ggplot(subset(subtotal2,order %in% order_table$order[which(order_table$sigBin)]),aes(x=log(JC),y=value,col=class))+c_scale_class+geom_point()+geom_smooth(method="lm",fill=NA,col="black")+facet_grid(~class+order)+coord_cartesian(ylim=c(0,1))
+
+row2 = ggplot(subset(subtotal2,order %in% order_table$order[which(order_table$sigBin)]),aes(x=phylodists,y=value,col=class))+c_scale_class+geom_point()+geom_smooth(method="lm",fill=NA,col="black")+facet_grid(~class+order)+coord_cartesian(ylim=c(0,1))
+
+plot_grid(row1,row2,nrow=2)
+```
+
+
+

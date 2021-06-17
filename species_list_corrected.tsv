@@ -1,0 +1,631 @@
+species	taxid
+Picea pungens	3331
+Picea sitchensis	3332
+Picea rubens	3333
+Picea engelmannii	3334
+Picea mariana	3335
+Picea omorika	3336
+Persea americana var. Hass	3435
+Persea americana var. guatamalensis	3435
+Aquilegia vulgaris	3451
+Actinidia chinensis var. deliciosa 	3627
+Citrullus lanatus 	3654
+Populus nigra	3691
+Populus tremuloides	3693
+Populus trichocarpa	3694
+Populus deltoides	3696
+Arabidopsis thaliana	3702
+Capsella bursa-pastoris	3719
+Prunus persica	3760
+Solanum lycopersicum	4081
+Solanum peruvianum	4082
+Solanum chilense	4083
+Solanum pimpinellifolium	4084
+Mimulus guttatus 	4155
+Mimulus guttatus	4155
+Mimulus nasutus	4158
+Helianthus annuus	4232
+Helianthusannus + Helianthus petiolaris	NA
+Helianthus petiolaris	4234
+Aegilops bicornis	4483
+Aegilops comosa 	4485
+Aegilops longissima	4486
+Aegilops searsii	4487
+"[Aegilops comosa, Aegilops uniaristata, Aegilops umbellulata, Aegilops caudata , Aegilops tauschii, Aegilops longissima, Aegilops sharonensis, Aegilops bicornis, Aegilops searsii]"	4487
+Aegilops umbellulata	4491
+Aegilops uniaristata 	4492
+Aegilops markgrafii 	4494
+Oryza	4527
+Oryza rufipogon	4529
+Oryza nivara	4536
+Triticum aestivum	4565
+Triticum durum	4567
+Triticum monococcum	4568
+"[Triticum monococcum spp. monococcum, Triticum urartu, Triticum monococcum spp. aegilopoides]"	NA
+Triticum urartu	4572
+Aegilops speltoides	4573
+Zea mays 	4577
+Amblyopyrum muticum	4595
+[Aegilops mutica]	4595
+Musa acuminata var. Banksii	4641
+Musa acuminata var. Burmannica	4641
+Histoplasma capsulatum	5037
+Coccidioides immitis	5501
+Schistosoma bovis	6184
+Schistosoma haematobium	6185
+Schistosoma curassoni	6186
+Drosophila teissieri	7243
+Drosophila yakuba	7245
+Anguilla marmorata	7939
+Catostomus Pantosteus	7969
+Catostomus clarkii	7970
+Salmo trutta	8032
+Salvelinus leucomaenis	8034
+Salvelinus alpinus 	8036
+Salvelinus confluentus	8037
+Salvelinus fontinalis	8038
+Salvelinus malma 	8039
+Salvelinus namaycush	8040
+Gadus morhua	8049
+Gadus ogac	8052
+Xiphophorus helleri	8084
+Xiphophorus hellerii	8084
+Xiphophorus xiphidium	8086
+Astatotilapia spp. 	8152
+Astatotilapia calliptera	8154
+Caracal aurata	8174
+Anser anser	8843
+Anser cygnoides	8845
+Anser indicus	8846
+Chen caerulescens	8849
+Branta canadensis	8853
+Gallus gallus	9031
+Gallus gallus domesticus	9031
+Gallus lafayettii	9032
+Gallus sonneratii	9033
+Gallus varius	9034
+Certhidea psittacula	9227
+Cheirogaleus medius	9460
+Macaca arctoides	9540
+Macaca fascicularis	9541
+Macaca mulatta	9544
+Macaca assamensis	9551
+Homo sapiens 	9606
+Canis lupus 	9612
+Canis lupus	9612
+Canis latrans 	9614
+Canis familiaris 	9615
+Canis lupus familiaris 	9615
+Ursus arctos	9644
+Felis catus	9685
+Panthera leo	9689
+Panthera onca	9690
+Panthera pardus	9691
+Panthera tigris	9694
+Puma concolor	9696
+Sus scrofa	9823
+Lama guanicoe	9840
+Vicugna vicugna	9843
+Lama glama	9844
+Bison bison	9901
+Bison bonasus	9902
+Bos gaurus	9904
+Bos javanicus	9906
+Bos taurus 	9913
+Bos taurus	9913
+Bos indicus 	9915
+Bos indicus	9915
+Ovis aries 	9940
+Ovis aries	9940
+Lynx lynx	13125
+Juglans nigra	16719
+Solanum pennellii	28526
+Solanum pennelli	28526
+Strauzia vittigera	28614
+Cyprinodon variegatus	28743
+Selasphorus rufus	29060
+Panthera uncia	29064
+Ursus maritimus	29073
+Ceratopteris thalictroides	29596
+Corvus corone	30422
+Corvus corone 	30422
+Bos frontalis	30520
+Bos grunniens	30521
+Bos taurus x Bos indicus 	30522
+Ovis ammon	30527
+Vicugna pacos	30538
+Xiphophorus signum	30753
+Xiphophorus alvarezi	32467
+Xiphophorus andersi	32468
+Xiphophorus birchmanni	32469
+Xiphophorus clemenciae	32470
+Xiphophorus cortezi	32472
+Xiphophorus couchianus	32473
+Xiphophorus evelynae	32474
+Xiphophorus gordoni	32475
+Xiphophorus malinche	32476
+Xiphophorus meyeri	32477
+Xiphophorus milleri	32478
+Xiphophorus montezumae	32479
+Xiphophorus nezahualcoyotl	32481
+Xiphophorus pygmaeus	32483
+Xiphophorus variatus	32484
+Neolamprologus brichardi	32507
+Acinonyx jubatus	32536
+Leopardus pardalis	32538
+Heliconius ethilla	33418
+Heliconius numata	33419
+Heliconius  numata	33419
+Heliconius besckei	33420
+Heliconius telesiphe	33421
+Heliconius cydno	33424
+Heliconius hecale	33425
+Heliconius erato	33431
+Heliconius demeter	33436
+Heliconius pardalinus	33441
+Heliconius himera	33442
+Heliconius sara 	33443
+Heliconius sara	33443
+Heliconius doris	33455
+Salmo marmoratus	33518
+Anopheles melas 	34690
+Heliconius melpomene	34740
+Heliconius  melpomene	34740
+Prionailurus bengalensis	37029
+Aegilops tauschii 	37682
+Carex lucennoiberica/Carex furva putative hybrid	37965
+Ursus spelaeus	39097
+Picea mexicana	39833
+Oryza glumaepatula	40148
+Sus barbatus	41807
+Phoenix dactylifera 	42345
+Ophiostoma novo-ulmi 	42373
+Ophiostoma novo-ulmi  	42373
+Populus alba	43335
+Heliconius par	44741
+Canis rufus 	45781
+Jaltomata procumbens	45845
+Leopardus tigrinus	46842
+Leopardus geoffroyi	46844
+Cheirogaleus major	47177
+Lepus americanus 	48086
+Lepus californicus 	48087
+Cyrtandra hawaiensis 	48779
+Cyrtandra. hawaiensis 	48779
+Passer domesticus	48849
+Certhidea olivacea	48880
+Geospiza conirostris	48882
+Geospiza fortis	48883
+Geospiza fuliginosa	48884
+Geospiza magnirostris	48885
+Geospiza scandens	48886
+Triticum dicoccum	49225
+Anser albifrons	50365
+Anser albifrons 	50365
+Juglans regia	51240
+Macaca thibetana	54602
+Aphelocoma ultramarina	55973
+Passer hispaniolensis	56115
+Chen rossii	56281
+Branta sandvicensis	56282
+Phylloscopus affinis	56431
+Ceratopteris pteridoides	58167
+Triticum spelta	58933
+Anguilla bicolor	61124
+Felis chaus	61376
+Felis margarita	61378
+Felis nigripes	61379
+Leopardus wiedii	61382
+Lynx canadensis	61383
+Lynx rufus	61384
+Leopardus guigna	61386
+Prionailurus viverrinus	61388
+Caracal caracal	61394
+Leptailurus serval	61405
+Leopardus colocolo	61406
+Pardofelis marmorata	61410
+Cyrtandra paludosa	61440
+Cyrtandra sandwicensis 	61442
+Pardofelis badia	61454
+Catopuma temminckii	61455
+Anopheles funestus	62324
+Anopheles vaneedeni	62325
+Lepus timidus 	62621
+Solanum chmielewskii	62889
+Solanum habrochaites	62890
+Solanum neorickii	62891
+Homo Neanderthalensis	63221
+Homo Neanderthalensis 	63221
+Actinidia polygama	64480
+Actinidia chinensis var. setosa	64481
+Oryza barthii	65489
+Lycalopex culpaeus	68736
+Mimulus aurantiacus	68869
+Gasterosteus aculeatus	69293
+Helianthus argophyllus	73275
+Helianthus bolanderi 	73278
+Helianthus debilis	73282
+Helianthus praecox	73306
+Populus balsamifera	73824
+Helianthus niveus subsp. niveus	74144
+Helianthus niveus subsp. canescens	74145
+Helianthus petiolaris subsp. fallax	74150
+Populus euphratica	75702
+Populus lasiocarpa	77070
+Gadus macrocephalus	80720
+Populus x canescens	80863
+Capsella rubella 	81985
+Capsella rubella	81985
+Hemispingus frontalis	85537
+Hemispingus verticalis	85540
+Triticum durum. x. Triticum dicoccoides	85692
+Anguilla megastoma	86963
+Anguilla obscura	86964
+Anguilla interioris	86967
+Geospiza difficilis	87173
+Rhinolophus sinicus 	89399
+Conus coronatus	89441
+Juglans cinerea	91214
+Juglans mandshurica	91218
+Pinaroloxias inornata	93070
+Senecio vernalis	93496
+Conus miliaris	97181
+Quercus engelmannii	97696
+Quercus lobata	97700
+Conus abbreviatus	100123
+Conus chaldaeus	101292
+Heliconius timareta	101932
+Heliconius timareta 	101932
+Vitis amurensis	103351
+Quercus dentata	103484
+Phlox cuspidata	103527
+Phlox drummondii	103529
+Phlox roemeriana	103542
+Chen canagica	107021
+Heliconius nanna	113155
+Phoenix canariensis	113250
+Populus laurifolia	113624
+Populus tremula	113636
+Laccospadix australasicus	115487
+Grallaria hypoleuca	117148
+Grallaria squamigera	117164
+Senecio aethnensis	121540
+Senecio chrysanthemifolius	121541
+Senecio gallicus	121545
+Senecio glaucus	121546
+Senecio leucanthemifolius	121548
+Picea smithiana	123602
+Drosophila santomea	129105
+Linospadix monostachyos	131282
+Anser brachyrhynchus	132585
+Anser erythropus	132586
+Anser fabalis	132587
+Aphelocoma californica	142466
+Solanum cheesmaniae	142759
+Canis lupus baileyi 	143281
+Howea belmoreana	145691
+Prunus mira	151332
+Prunus davidiana	151430
+Salvethymus svetovidovi	152109
+Catostomus texanus	154827
+Pitohui dichrous	156166
+Pitohui kirhocephalus	156167
+Sus verrucosus	159856
+Picea wilsonii	162304
+Picea asperata	162306
+Picea schrenkiana	162307
+Anopheles parensis	162637
+Phylloscopus griseolus	163864
+Actinidia eriantha	165200
+Actinidia lanceolata	165201
+Actinidia latifolia	165711
+Actinidia latifolia 	165711
+Actinidia macrosperma	165712
+Actinidia rufa	165716
+Actinidia valvata	165719
+Actinidia zhejiangensis	165720
+Actinidia callosa var. henryi	165782
+Actinidia callosa var. henryi  	165782
+Actinidia cylindrica var. reticulata	165784
+Actinidia callosa var. strigillosa	165785
+Hemispingus xanthophthalmus	166073
+Quercus cornelius-mulleri	167419
+Quercus dumosa	167420
+Quercus gambelii	168163
+Quercus gambelii 	168163
+Picea spinulosa	171229
+Achimenes candida	171295
+Achimenes cettoana	171296
+Achimenes misera	171297
+Heliconius hecalesia	171911
+Heliconius melpomene rosina	171916
+Populus szechuanica	179740
+Populus wilsonii	179741
+Jaltomata auriculata	180573
+Corvus cornix	181096
+Corvus cornix 	181096
+Thripadectes flammulatus	183163
+Dendrocincla fuliginosa 	183179
+Neolamprologus gracilis	184147
+Neolamprologus marunguensis	184149
+Neolamprologus olivaceous	184150
+Neolamprologus pulcher	184151
+Branta leucopsis	184711
+Branta bernicla	184712
+Branta ruficollis	184715
+Arctogadus glacialis	185735
+Xiphophorus mayae	186743
+Achimenes admirabilis	188992
+Lynx pardinus	191816
+Heliconius hortense	196493
+Catostomus tahoensis	196750
+Coccidioides posadasii	199306
+Jaltomata sinuosa	205521
+Quercus mongolica var. crispula	213178
+Musa acuminata var. Zebrina	214685
+Musa acuminata var. Malaccensis	214687
+Pedicularis cyathophylla	216513
+Pedicularis cyathophylloides	216514
+Pedicularis superba	216542
+Actinidia cylindrica var. cylindrica	222490
+Actinidia cylindrica var. cylindrica    	222490
+Actinidia fulvicoma var. fulvicoma	222496
+Actinidia hubeiensis	222502
+Actinidia lijiangensis	222504
+Aquilegia formosa	223430
+Achimenes grandiflora	223874
+"Achimenes cettoana, Achimenes longiflora"	NA
+Achimenes patens 	223876
+"Achimenes candida,Achimenes grandiflora,Achimenes pedunculata, Achimenes patens "	NA
+Achimenes erecta	223878
+Achimenes antirrhina	223879
+Achimenes pedunculata	223880
+Juglans sigillata	224355
+Picea orientalis	224734
+Vitis piasezkii	228411
+Salvelinus levanidovi	230553
+Solanum corneliomulleri	230663
+Salmo obtusirostris	237411
+Certhidea fusca	240232
+Populus yunnanensis	242124
+Catostomus columbianus	244772
+Catostomus platyrhynchus	244773
+Aphelocoma wollweberi potosina	247973
+Aphelocoma wollweberi	248078
+Heliconius melpomene aglaope	248311
+Heliconius melpomene amaryllis	248312
+Conus judaeus	257330
+Catostomus plebeius	259651
+Dendrocincla tyrannina 	261817
+Capsella grandiflora	264402
+Populus davidiana	266767
+Aphelocoma wollweberi arizonae	269254
+Aphelocoma wollweberi couchii	269257
+Aphelocoma wollweberi couchii 	269257
+Aquilegia chrysantha	270621
+Mimulus aridus	270951
+Mimulus australis	270953
+Mimulus calycinus	270954
+Mimulus parviflorus	270955
+diplacus grandiflorus	270956
+Mimulus longiflorus	270957
+Mimulus puniceus 	270958
+Sus celebensis	273789
+Cheirogaleus crossleyi 	291259
+Aquilegia flabellata	291305
+Howea forsteriana	292773
+Linospadix albertisianus	292776
+Linospadix palmerianus	292777
+Populus fremontii	295326
+Populus simonii	295327
+Cyrtandra kauaiensis	301619
+Cyrtandra longifolia	301623
+Picea likiangensis var. linzhiensis III	308677
+Picea likiangensis var. linzhiensis I	308677
+Picea likiangensis var. linzhiensis II	308677
+Picea likiangensis var. likiangensis I	308677
+Picea likiangensis var. likiangensis III	308677
+Picea likiangensis var. likiangensis II	308677
+Picea likiangensis var. rubescens I	308677
+Picea likiangensis var. rubescens II	308677
+Picea likiangensis var. rubescens III	308677
+Picea koraiensis	308680
+Picea meyeri	308681
+Picea retroflexa	308684
+Picea brachytyla var.complanata II	308686
+Picea brachytyla var.complanata III	308686
+"Picea brachytyla var.complanata I,"	308686
+Picea brachytyla var.complanata I	308686
+"Picea likiangensis var. linzhiensis I,Picea crassifolia"	308688
+Picea crassifolia	308688
+Carex albolutescens	314397
+Carex longii	314432
+Carex scoparia	314463
+Carex suberecta	314474
+Carex vexans	314485
+Solanum galapagense	315350
+Sus cebifrons	315377
+Magnaporthe oryzae 	318829
+Pedicularis rex spp. rex	321410
+Pedicularis rex spp. lipskyana	321410
+Pedicularis rex spp. rex var. rockii	321410
+Pedicularis thamnophila spp. thamnophila	326850
+Pedicularis thamnophila spp. cupuliformes	326850
+Prunus kansuensis	329890
+Picea obovata	331118
+Aquilegia pubescens	338617
+Linospadix minor	342556
+Corvus corone orientalis	344226
+Corvus corone orientalis 	344226
+Populus angustifolia	351344
+Picea neoveitchii	369397
+Branta hutchinsii	371860
+Selasphorus sasin	371924
+Ceratopteris cornuta	375903
+Solanum arcanum	376710
+Oenanthe pleschanka	391712
+Oenanthe cypriaca	391713
+Oenanthe hispanica melanoleuca	391723
+Anopheles longipalpis	412009
+Aquilegia oxysepala	432649
+Catostomus discobolus	436679
+Phoenix sylvestris	446127
+Phoenix theophrasti	446128
+Acridotheres javanicus	451385
+Quercus douglasii	465759
+Selasphorus calliope	472914
+Porcula salvania	476284
+Aphelocoma ultramarina colimae 	481744
+Aphelocoma ultramarina ultramarina	481746
+Aphelocoma wollweberi wollweberi	481747
+Populus pruinosa	492479
+Zimmerius chrysops	495159
+Nephelomyias ochraceiventris	495174
+Ochthoeca diadema	495219
+Zimmerius viridiflavus	502662
+Strauzia longipennis	503478
+Carex furva	513294
+Acridotheres melanopterus	513300
+Ursus ingressus	518689
+Ursus kudarensis	518692
+Quercus macrocarpa	519047
+Citrullus mucosospermus	519315
+Catostomus latipinnis	522486
+Montipora flabellata	530167
+Heliconius melpomene nanna	544892
+Buthraupis eximia	548503
+Buthraupis aureodorsalis	548504
+Iridosornis reinhardti	548509
+Iridosornis rufivertex	548510
+Aquilegia aurea	560537
+Aquilegia sibirica	560549
+"Cyrtandra grandiflora, Cyrtandra kaulantha, Cyrtandra hawaiensis 3, Cyrtandra calpidicarpa"	NA
+"Cyrtandra. grandiflora, Cyrtandra kaulantha, Cyrtandra hawaiensis 3,  Cyrtandra calpidicarpa"	NA
+Cyrtandra munroi 	573447
+Anguilla luzonensis	573744
+Persea americana var. drymifolia	580376
+Solanum huaylasense	588598
+Ochthoeca pulchella	649798
+Rhipidura teysmanni	667195
+Catostomus insignis	681757
+Catostomus santaanae	681758
+"Cyrtandra grayana, Cyrtandra macrocalyx"	NA
+Homo sapiens ssp. denisova	741158
+Cheirogaleus sibreei	752538
+Populus rotundifolia	765816
+Jaltomata biflora	879926
+Jaltomata darcyana	879933
+Jaltomata dendroidea	879934
+Jaltomata repandidentata	879946
+Jaltomata umbellata	879953
+Jaltomata yungayensis	879958
+Vitis romanetii	882115
+Capsella orientalis	945839
+Phylloscopus occisinensis	947499
+Montipora dilatata	994752
+Setophaga auduboni 	1037455
+Setophaga coronata coronata	1037456
+Setophaga coronata nigrifrons	1037458
+Theragra chalcogramma	1042646
+Passer italiae	1069440
+Populus koreana	1085088
+Thripadectes holostictus	1094535
+Thripadectes scrutator	1094537
+Napothera crispifrons	1149651
+Corvus pectoralis	1196305
+Corvus pectoralis 	1196305
+Oenanthe hispanica hispanica	1207001
+Vitis shenxiensis	1239142
+Quercus berberidifolia	1266315
+Quercus berberidifolia 	1266315
+Quercus durata var. durata	1266326
+Quercus durata var. gabrielensis	1266326
+Quercus john-tuckeri	1266336
+Quercus pacifica	1266344
+Aquilegia longissima	1291443
+Catostomus discobolus yarrowi	1338610
+Macaca mulatta lasiota	1449913
+Catostomus jordani	1476536
+Catostomus virescens	1476541
+Diapensia himalaica	1501234
+Diapensia purpurea	1501235
+"[Aegilops speltoides var. lingustica, Aegilops speltoides var. speltoides]"	NA
+Populus adenopoda	1536645
+Citrullus amarus	1567104
+Rhinolophus sinicus sinicus 	1585245
+Actinidia chinensis var. chinensis 	1590841
+Populus mexicana	1593301
+Actinidia fulvicoma var. hirsuta	1594464
+Grallaria przewalskii	1604838
+Leptopogon taczanowskii	1604839
+Leptopogon rufipectus	1604843
+Puma yagouaroundi	1608482
+Gasterosteus nipponicus	1778380
+Actinidia hypoleuca	1837144
+Aquilegia barnebyi	1886611
+Populus ilicifolia	1902783
+Populus qiongdaoensis	1903715
+Populus heterophylla	1955051
+Jaltomata aijana	1972499
+Jaltomata calliantha	1972500
+Jaltomata grandibaccata	1972501
+Jaltomata incahuasina	1972502
+Jaltomata quipuscoae	1972503
+Cyprinodon brontotheroides	1987526
+Strauzia longitudinalis	2006637
+Omocestus minutissimus	2024681
+Carex lucennoiberica	2041357
+Populus trinervis	2107771
+Ursus eremus	2115972
+Populus ningshanica	2291147
+Pitohui uropygialis	2305099
+Histoplasma suramericanum	2482892
+Nephelomyias lintoni	2489343
+Linospadix microcaryus	2559497
+Linospadix apetiolatus	2559498
+Anser serrirostris	2606890
+Strauzia rugosum	2724148
+Strauzia uvedaliae	2724149
+Strauzia noctipennis	2725042
+Carex waponahkikensis	2753487
+Populus wulianensis	2754729
+Zingiber singapurense	2772578
+Zingiber puberulum	2773222
+Gypsophila annamensis	2781073
+Gypsophila calcicola	2781074
+Neurospera crassa	5141
+Cyrtandra hawaiensis x grayana	NA
+"Cyrtandra hawaiensis x grayana, Cyrtandra hawaiensis 2"	NA
+?	NA
+	NA
+Quercus cornelius‐mulleri	167419
+Solanum huaylense	588598
+Ceratopteris guadichaudii	2614507
+Gasterosteus aculeatusus	69293
+Rhipidura teysmanni toradja	667195
+Certhidea pallidus	48878
+Certhidea heliobates	1553461
+Certhidea parvulus	87175
+Certhidea pauper	93066
+Buthraupis riefferii	62169
+Histoplasma ohiense	NA
+Histoplasma mississippiense	NA
+Neurospera tetrasperma	40127
+Cyrtandra longifolia x kauaiensis	NA
+Quercus john‐tuckeri	1266336
+"[Ae. comosa, Ae. uniaristata, Ae. umbellulata, Ae. caudata , Ae. tauschii, Ae. longissima, Ae. sharonensis, Ae. bicornis, Ae. searsii]"	NA
+Selasphorus sasin sedantarius	371924
+Rhipidura teysmanni tax nov	667195
+Acridotheres tertius	NA
+Conus fulgetrum	97181
+Montipora cf. turgescens	NA
+Histoplasma Africa	NA
+MTH 	NA
+"Cyrtandra grayi 1, Cyrtandra grayi 2"	NA
+Citrullus ecirrhosus & Citrullus rehmii	NA
+Rhipidura teysmanni sulaensis	667195
+Pinaroloxias crassirostris	48888
+Omocestus uhagoni	2024683
+Heliconius timareta ssp. nov.	101932
+Neurospera hispaniola	588809
+Neurospera sitophila	40126

@@ -1,0 +1,275 @@
+term	count	category	narrow
+ clinal analysis	1	clines	clines
+ cline analaysis	2	clines	clines
+ cline analyses	1	clines	clines
+ cline analysis	17	clines	clines
+ clines	24	clines	clines
+clinal	4	clines	clines
+clinal analysis	6	clines	clines
+cline analysis	5	clines	clines
+clines	15	clines	clines
+  pca	1	clustering	PCA
+  structure	1	clustering	STRUCTURE
+ admixture	47	clustering	ADMIXTURE
+ admixturegraph	1	clustering	ADMIXTURE
+ and admixture	1	clustering	ADMIXTURE
+ and newhybrid	1	clustering	NEWHYBRIDS
+ arlequin	1	clustering	arlequin
+ bucky	2	clustering	bucky
+ chromopainter	1	clustering	chromopainter
+ clump	1	clustering	clumpp
+ entropy	2	clustering	ENTROPY
+ faststructure	8	clustering	fastSTRUCTURE
+ fineradstructure	1	clustering	fineSTRUCTURE
+ finestructure	2	clustering	fineSTRUCTURE
+ finstructure	1	clustering	fineSTRUCTURE
+ frappe	1	clustering	frappe
+ hybrid index	8	clustering	HI
+ hybridlab	2	clustering	HI
+ introgress	5	clustering	INTROGRESS
+ newhybrids	24	clustering	NEWHYBRIDS
+ ngsadmix	4	clustering	ngsAdmix
+ paa	1	clustering	PCA
+ pca	74	clustering	PCA
+ pcoa	2	clustering	PCA
+ pcr	1	NA	NA
+ smartpca	1	clustering	PCA
+ structure	87	clustering	STRUCTURE
+ structutre	1	clustering	STRUCTURE
+admixture	25	clustering	ADMIXTURE
+clumpp	1	clustering	clumpp
+entropy	2	clustering	ENTROPY
+faststructure	7	clustering	fastSTRUCTURE
+frappe	1	clustering	frappe
+hybrid index	1	clustering	HI
+introgress	2	clustering	INTROGRESS
+newhybrids	5	clustering	NEWHYBRIDS
+pca	29	clustering	PCA
+pcadmix	1	clustering	PCAdmix
+pcoa	2	clustering	PCA
+smartpca	1	clustering	PCA
+structure	114	clustering	STRUCTURE
+structure-like program	1	clustering	Other
+struture	1	clustering	STRUCTURE
+ dadi	1	demography	demography
+ demograhic analysis	1	demography	demography
+ demographic	3	demography	demography
+ demographic analyses	3	demography	demography
+ demographic analysis	1	demography	demography
+ demographic inference	31	demography	demography
+ demographic modeling	4	demography	demography
+ demographic models	1	demography	demography
+ demography	43	demography	demography
+ demogrpahy	1	demography	demography
+ emographic inference	1	demography	demography
+ fastsimcoal	1	demography	demography
+ fastsimcoal2	1	demography	demography
+ ima2	1	demography	demography
+ jmodeltest	2	demography	demography
+ migrate	3	demography	demography
+ mrbayes	8	demography	demography
+ mrmodeltest	3	demography	demography
+ mshot	1	demography	demography
+ msmc	1	demography	demography
+ psmc	2	demography	demography
+ simulations	3	demography	demography
+ slim	1	demography	demography
+dadi	3	demography	demography
+demographic inference	3	demography	demography
+demographic models	3	demography	demography
+demographic simulations	1	demography	demography
+demography	14	demography	demography
+jmodeltest	1	demography	demography
+  d foil	1	fstats	D-foil
+  patterson's d	2	fstats	D
+ and s*	1	fstats	s*
+ d	14	fstats	D
+ d'	1	fstats	D'
+ d-like approach	1	fstats	NA
+ d-stats	3	fstats	D
+ d foil	2	fstats	D-foil
+ d stat	1	fstats	D
+ d stats	2	fstats	D
+ d*	1	fstats	D'
+ d2	3	fstats	D2
+ df	1	fstats	D_f
+ dfoil	7	fstats	D-foil
+ dp	2	fstats	D_p
+ dstats	1	fstats	D
+ exd-foil	1	fstats	D-foil
+ f-stats	1	fstats	NA
+ f stat	1	fstats	NA
+ f^	3	fstats	f^
+ f^ 	1	fstats	f^
+ f3	17	fstats	f3
+ f4	14	fstats	f4
+ f4-ratio	2	fstats	f4
+ fd	36	fstats	fD
+ fdm	3	fstats	fDM
+ fg	3	fstats	fG
+ fhom	2	fstats	fHom
+ patterson's d	64	fstats	D
+ s*	3	fstats	s*
+d	48	fstats	D
+d-foil	1	fstats	D-foil
+d-stats	1	fstats	D
+d stat	7	fstats	D
+d statistics	2	fstats	D
+d stats	11	fstats	D
+d3	1	fstats	D3
+f2	1	fstats	f2
+f3	8	fstats	f3
+f4	4	fstats	f4
+f4 stats; structure	1	fstats	f4
+fd	12	fstats	fD
+patterson's d	23	fstats	D
+s*	11	fstats	s*
+ ancestry hmm	1	HMM	HMM
+ hmm	3	HMM	HMM
+ hmm approaches	1	HMM	HMM
+ inthmm	1	HMM	HMM
+hmm	2	HMM	HMM
+hmm-based approach (au test)	1	HMM	HMM
+phylonet-hmm	1	HMM	HMM
+ ml	1	ML	ML
+ ml appproaches	1	ML	ML
+ and comparative morphology	1	morphology	morphology
+ and morpholgical analyses	1	morphology	morphology
+ behavioral data	1	morphology	morphology
+ bioaucostics	1	morphology	morphology
+ morphological analyses	1	morphology	morphology
+ morphological data	9	morphology	morphology
+ morphology	12	morphology	morphology
+ phenotypes	1	morphology	morphology
+ phenotypic analysis	1	morphology	morphology
+morphological data	6	morphology	morphology
+morphology	8	morphology	morphology
+  fca	1	NA	NA
+ 3s	1	NA	NA
+ aflp	1	NA	NA
+ fis	2	NA	NA
+ flow cytometry	1	NA	NA
+ genetic region by trait association	1	NA	NA
+ geographic distribution	1	NA	NA
+ gwas	7	NA	NA
+ ibdmix	1	NA	NA
+ mcmc	1	NA	NA
+ panther	1	NA	NA
+ q95	1	NA	NA
+ randomness test	1	NA	NA
+ rd	1	NA	NA
+ rnd	2	NA	NA
+ snmf	1	NA	NA
+ species distribution modelling	1	NA	NA
+ u	1	NA	NA
+cytogenetic approach	1	NA	NA
+expression similarity	1	NA	NA
+fis	1	NA	NA
+gwas	1	NA	NA
+ibdmix	1	NA	NA
+instruct	1	NA	NA
+introgression scores	1	NA	NA
+microsat	1	NA	NA
+spatial analysis	1	NA	NA
+ and heterozygosity	1	pop	pop
+ and ld analysis	1	pop	pop
+ heterozygosity	3	pop	pop
+ ld	6	pop	pop
+ roh	1	pop	pop
+ selection scans	2	pop	pop
+haplotypes and roh by ibd	1	pop	pop
+ld	3	pop	pop
+  sequence similarity	2	similarity	similarity
+ and divergence tests	1	similarity	similarity
+ divergence	1	similarity	similarity
+ dxy	5	similarity	similarity
+ fst	28	similarity	similarity
+ gmin	3	similarity	similarity
+ haplotype analysis	1	similarity	similarity
+ haplotype lengths	1	similarity	similarity
+ haplotype network	3	similarity	similarity
+ haplotype networks	1	similarity	similarity
+ haplotype similarity	2	similarity	similarity
+ ibd	1	similarity	similarity
+ mk test	1	similarity	similarity
+ mtdna patterns	1	similarity	similarity
+ nei's d	1	similarity	similarity
+ nucelotide diversity and differentiation	1	similarity	similarity
+ pst	1	similarity	similarity
+ qst	1	similarity	similarity
+ rates of evolution	1	similarity	similarity
+ seqeunce similarity	1	similarity	similarity
+ sequence similairty	14	similarity	similarity
+ sequence similarirty	1	similarity	similarity
+ sequence similarity	206	similarity	similarity
+ sequence similiarity	1	similarity	similarity
+ sequences similarity	1	similarity	similarity
+ substituion rates	1	similarity	similarity
+ substitution rates	1	similarity	similarity
+ tract lenght comparisons	1	similarity	similarity
+blocks of synteny	1	similarity	similarity
+dmin	1	similarity	similarity
+fst	14	similarity	similarity
+haplotype	1	similarity	similarity
+haplotype based methods for a specific region of the genonme	1	similarity	similarity
+hka test	1	similarity	similarity
+rndmin	1	similarity	similarity
+seqeuence similarity	1	similarity	similarity
+sequence similairty	7	similarity	similarity
+sequence similarity	167	similarity	similarity
+sequencer similarity	1	similarity	similarity
+sequnce similairty	1	similarity	similarity
+  raxml	1	trees	trees
+ and phylogeny aanalysis	1	trees	trees
+ beast	2	trees	trees
+ examl	1	trees	trees
+ gene trees	10	trees	trees
+ hyde	1	trees	trees
+ iqtree	1	trees	trees
+ mixmapper	1	trees	trees
+ network	2	trees	trees
+ networks	1	trees	trees
+ nework analysis	1	trees	trees
+ phylip	2	trees	trees
+ phylogentic analyses	1	trees	trees
+ phylogentic approacheds fd	1	trees	trees
+ phylogentic approaches	34	trees	trees
+ phylonet	3	trees	trees
+ phyml	4	trees	trees
+ physotr	1	trees	trees
+ puap	9	trees	trees
+ quibl	1	trees	trees
+ raxml	11	trees	trees
+ saguaro	2	trees	trees
+ splistree	1	trees	trees
+ splitstree	3	trees	trees
+ tree	1	trees	trees
+ treebest	1	trees	trees
+ treemix	21	trees	trees
+ trees	153	trees	trees
+ twisst	4	trees	trees
+ape	1	trees	trees
+beast	1	trees	trees
+bucky	1	trees	trees
+gene trees	1	trees	trees
+genotype networks	1	trees	trees
+mega	2	trees	trees
+mrbayes	1	trees	trees
+phylip	3	trees	trees
+phylogentic analyses	1	trees	trees
+phylogentic appraoches	1	trees	trees
+phylogentic approaches	11	trees	trees
+phylonet	1	trees	trees
+phyml	1	trees	trees
+poptree2	1	trees	trees
+puap	2	trees	trees
+raxml	5	trees	trees
+saguaro	2	trees	trees
+splitstree	3	trees	trees
+tree discordance	1	trees	trees
+treemix	2	trees	trees
+trees	88	trees	trees
+twisst	1	trees	trees
+ dapc	2	NA	NA
+partitionfinder	1	NA	NA
+popart	1	NA	NA
