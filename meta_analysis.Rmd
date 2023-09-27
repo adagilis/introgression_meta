@@ -25,7 +25,7 @@ library(stringr)
 library(XML)
 library(MCMCglmm)
 #Get your own ncbi key! https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/
-set_entrez_key("aff3f3a0e8aa4ca59dbd5ee2d64c3d91f409")
+set_entrez_key("")
 #Function to grab taxon id from entrez.
 
 fetch_taxid = function(x){
